@@ -3,11 +3,13 @@ package java8.ex08;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.*;
@@ -65,14 +67,21 @@ public class Stream_08_Test {
 
 
     @Test
-    public void test_group() throws IOException {
+    public void test_group() throws IOException, URISyntaxException {
 
         // TODO utiliser la méthode java.nio.file.Files.lines pour créer un stream de lignes du fichier naissances_depuis_1900.csv
         // Le bloc try(...) permet de fermer (close()) le stream après utilisation
-        try (Stream<String> lines = null) {
+        try (Stream<String> lines = Files.lines(
+        		Paths.get(ClassLoader.getSystemResource(NAISSANCES_DEPUIS_1900_CSV).toURI())
+        		).skip(1)) {
 
             // TODO construire une MAP (clé = année de naissance, valeur = somme des nombres de naissance de l'année)
-            Map<String, Integer> result = null;
+            Map<String, Integer> result = lines.map(
+            		l -> l.split(";")
+            		).collect(
+            				groupingBy(l -> l[1], 
+            						Collectors.summingInt(l -> Integer.parseInt(l[3])))
+            				);
 
 
             assertThat(result.get("2015"), is(8097));
@@ -81,14 +90,22 @@ public class Stream_08_Test {
     }
 
     @Test
-    public void test_max() throws IOException {
+    public void test_max() throws IOException, URISyntaxException {
 
         // TODO utiliser la méthode java.nio.file.Files.lines pour créer un stream de lignes du fichier naissances_depuis_1900.csv
         // Le bloc try(...) permet de fermer (close()) le stream après utilisation
-        try (Stream<String> lines = null) {
+        try (Stream<String> lines = Files.lines(
+        		Paths.get(ClassLoader.getSystemResource(NAISSANCES_DEPUIS_1900_CSV).toURI())
+        		).skip(1)) {
 
             // TODO trouver l'année où il va eu le plus de nombre de naissance
             Optional<Naissance> result = null;
+//            		lines.map(
+//            		l -> l.split(";")
+//            		).collect(
+//            				groupingBy(l -> l[1], 
+//            						Collectors.summingInt(l -> Integer.parseInt(l[3])))
+//            				).values().stream().max(Integer::compare);
 
 
             assertThat(result.get().getNombre(), is(48));
@@ -98,10 +115,12 @@ public class Stream_08_Test {
     }
 
     @Test
-    public void test_collectingAndThen() throws IOException {
+    public void test_collectingAndThen() throws IOException, URISyntaxException {
         // TODO utiliser la méthode java.nio.file.Files.lines pour créer un stream de lignes du fichier naissances_depuis_1900.csv
         // Le bloc try(...) permet de fermer (close()) le stream après utilisation
-        try (Stream<String> lines = null) {
+        try (Stream<String> lines = Files.lines(
+        		Paths.get(ClassLoader.getSystemResource(NAISSANCES_DEPUIS_1900_CSV).toURI())
+        		).skip(1)) {
 
             // TODO construire une MAP (clé = année de naissance, valeur = maximum de nombre de naissances)
             // TODO utiliser la méthode "collectingAndThen" à la suite d'un "grouping"
